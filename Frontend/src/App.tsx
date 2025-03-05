@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import PassengerDetails from "./pages/PassengerDetails";
+import FlightDetails from "./pages/FlightDetails";
+import FeedbackSelection from "./pages/FeedbackSelection";
+import FeedbackDetail from "./pages/FeedbackDetail";
+import AirlineSelection from "./pages/AirlineSelection";
+import LoungeSelection from "./pages/LoungeSelection";
+import StoreSelection from "./pages/StoreSelection";
+import AboutUs from "./pages/AboutUs";
+import NotFound from "./pages/NotFound";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+const queryClient = new QueryClient();
 
-export default App
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/passenger-details" element={<PassengerDetails />} />
+          <Route path="/flight-details" element={<FlightDetails />} />
+          <Route path="/feedback-selection" element={<FeedbackSelection />} />
+          <Route path="/feedback/:category" element={<FeedbackDetail />} />
+          <Route path="/feedback/:category/:entityId" element={<FeedbackDetail />} />
+          <Route path="/airline-selection" element={<AirlineSelection />} />
+          <Route path="/lounge-selection" element={<LoungeSelection />} />
+          <Route path="/store-selection" element={<StoreSelection />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
