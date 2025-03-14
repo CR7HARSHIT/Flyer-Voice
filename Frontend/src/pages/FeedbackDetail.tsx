@@ -8,88 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
-
-// Define the feedback questions for each category
-const FEEDBACK_QUESTIONS: Record<string, string[]> = {
-  'baggage': [
-    'How satisfied were you with the baggage drop-off process?',
-    'How would you rate the speed of baggage delivery?',
-    'How was the baggage handling in terms of care?',
-    'Rate the clarity of information regarding baggage claim'
-  ],
-  'food-court': [
-    'How satisfied were you with the food quality?',
-    'Rate the cleanliness of the food court area',
-    'How would you rate the variety of food options?',
-    'How was the staff service at food establishments?'
-  ],
-  'check-in': [
-    'How efficient was the check-in process?',
-    'Rate the helpfulness of the check-in staff',
-    'How would you rate the waiting time during check-in?',
-    'How clear was the signage and directions for check-in?'
-  ],
-  'help-desk': [
-    'How would you rate the knowledge of help desk staff?',
-    'How satisfied were you with the waiting time?',
-    'Rate the clarity of information provided',
-    'How helpful was the assistance provided?'
-  ],
-  'airline': [
-    'How would you rate the cabin crew service?',
-    'Rate the comfort of your seat',
-    'How was the in-flight entertainment?',
-    'How satisfied were you with the food/beverages?'
-  ],
-  'lounge': [
-    'How would you rate the comfort of the lounge?',
-    'Rate the quality of food and beverages in the lounge',
-    'How was the cleanliness of the lounge?',
-    'How satisfied were you with the amenities provided?'
-  ],
-  'store': [
-    'How would you rate the variety of products?',
-    'Rate the pricing of items at airport stores',
-    'How satisfied were you with the store staff service?',
-    'How convenient was the shopping experience?'
-  ],
-  'washroom': [
-    'How would you rate the cleanliness of the washrooms?',
-    'Rate the availability of washroom amenities',
-    'How satisfied were you with the privacy of facilities?',
-    'How would you rate the maintenance of washroom facilities?'
-  ],
-  'indigo': [
-    'How would you rate IndiGo\'s cabin crew service?',
-    'Rate the comfort of your seat on the IndiGo flight',
-    'How was the in-flight entertainment on IndiGo?',
-    'How satisfied were you with IndiGo\'s food/beverages?'
-  ],
-  'air-india': [
-    'How would you rate Air India\'s cabin crew service?',
-    'Rate the comfort of your seat on the Air India flight',
-    'How was the in-flight entertainment on Air India?',
-    'How satisfied were you with Air India\'s food/beverages?'
-  ],
-  'spicejet': [
-    'How would you rate SpiceJet\'s cabin crew service?',
-    'Rate the comfort of your seat on the SpiceJet flight',
-    'How was the in-flight entertainment on SpiceJet?',
-    'How satisfied were you with SpiceJet\'s food/beverages?'
-  ],
-  'goair': [
-    'How would you rate GoAir\'s cabin crew service?',
-    'Rate the comfort of your seat on the GoAir flight',
-    'How was the in-flight entertainment on GoAir?',
-    'How satisfied were you with GoAir\'s food/beverages?'
-  ],
-  'vistara': [
-    'How would you rate Vistara\'s cabin crew service?',
-    'Rate the comfort of your seat on the Vistara flight',
-    'How was the in-flight entertainment on Vistara?',
-    'How satisfied were you with Vistara\'s food/beverages?'
-  ]
-};
+import FEEDBACK_QUESTIONS from '@/lib/FeedbackQuestions';
 
 // Dictionary to map store and lounge IDs to their names
 const ENTITY_NAMES: Record<string, string> = {
@@ -115,22 +34,23 @@ const ENTITY_NAMES: Record<string, string> = {
 };
 
 const FeedbackDetail: React.FC = () => {
-  const { category, airlineId } = useParams<{ category: string, airlineId?: string }>();
+  const { category, entityId } = useParams<{ category: string, entityId?: string }>();
+  console.log(`category::${category},entityId::${entityId}`)
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1);
   const [ratings, setRatings] = useState<number[]>([]);
   const [comments, setComments] = useState('');
   const [showComments, setShowComments] = useState(false);
   
-  // Use airlineId as the category if it exists, otherwise use the category parameter
-  const feedbackCategory = airlineId || category;
-  
+  // Use entityId as the category if it exists, otherwise use the category parameter
+  const feedbackCategory =  (category ? category.replace(/-/g, "") : undefined)
+  console.log("Feedback Category::",feedbackCategory)
   const questions = feedbackCategory ? FEEDBACK_QUESTIONS[feedbackCategory] || [] : [];
-  const currentQuestion = questions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  const isFirstQuestion = currentQuestionIndex === 0;
+  const currentQuestion = questions[currentQuestionIndex]?.q;
+  const isLastQuestion = currentQuestionIndex === Object.keys(questions)?.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 1;
   
   const handleRatingChange = (value: number[]) => {
     const newRatings = [...ratings];
@@ -150,6 +70,7 @@ const FeedbackDetail: React.FC = () => {
     
     if (isLastQuestion) {
       setShowComments(true);
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
@@ -158,7 +79,7 @@ const FeedbackDetail: React.FC = () => {
   const handlePrevious = () => {
     if (showComments) {
       setShowComments(false);
-    } else if (currentQuestionIndex > 0) {
+    } else if (currentQuestionIndex > 1) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
     } else {
       // Navigate back to feedback selection
@@ -197,7 +118,7 @@ const FeedbackDetail: React.FC = () => {
     // Otherwise, format the category name from hyphenated to Title Case
     return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
-  
+  console.log("questions::",questions)
   return (
     <Layout>
       <div className="max-w-3xl mx-auto">
@@ -221,9 +142,9 @@ const FeedbackDetail: React.FC = () => {
           <span className="inline-block bg-flyerblue-100 text-flyerblue-600 px-3 py-1 rounded-full text-sm font-medium mb-2">
             Feedback
           </span>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{getCategoryName(feedbackCategory)}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{getCategoryName(feedbackCategory)} {entityId ? "("+ entityId+")" :""}</h1>
           <p className="text-muted-foreground">
-            {showComments ? "Add any additional comments" : `Question ${currentQuestionIndex + 1} of ${questions.length}`}
+            {showComments ? "Add any additional comments" : `Question ${currentQuestionIndex } of ${Object.keys(questions)?.length }`}
           </p>
         </motion.div>
         
@@ -282,7 +203,7 @@ const FeedbackDetail: React.FC = () => {
             <div className="space-y-6">
               <div>
                 <label htmlFor="comments" className="block text-sm font-medium mb-2">
-                  Additional Comments (Optional)
+                {currentQuestion}
                 </label>
                 <Textarea
                   id="comments"
