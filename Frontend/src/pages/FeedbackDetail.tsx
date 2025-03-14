@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, Send } from 'lucide-react';
+import { ChevronRight, Send, ChevronLeft } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -130,6 +130,7 @@ const FeedbackDetail: React.FC = () => {
   const questions = feedbackCategory ? FEEDBACK_QUESTIONS[feedbackCategory] || [] : [];
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
   
   const handleRatingChange = (value: number[]) => {
     const newRatings = [...ratings];
@@ -152,6 +153,21 @@ const FeedbackDetail: React.FC = () => {
     } else {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
+  };
+
+  const handlePrevious = () => {
+    if (showComments) {
+      setShowComments(false);
+    } else if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    } else {
+      // Navigate back to feedback selection
+      navigate('/feedback-selection');
+    }
+  };
+  
+  const handleBackToCategories = () => {
+    navigate('/feedback-selection');
   };
   
   const handleSubmit = () => {
@@ -189,8 +205,19 @@ const FeedbackDetail: React.FC = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 text-center"
+          className="mb-8 text-center relative"
         >
+          {/* Back button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handlePrevious}
+            className="absolute left-0 top-0"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+
           <span className="inline-block bg-flyerblue-100 text-flyerblue-600 px-3 py-1 rounded-full text-sm font-medium mb-2">
             Feedback
           </span>
@@ -233,13 +260,23 @@ const FeedbackDetail: React.FC = () => {
                 </div>
               </div>
               
-              <Button 
-                onClick={handleNext} 
-                className="w-full flex items-center justify-center"
-              >
-                {isLastQuestion ? "Continue" : "Next"}
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
+              <div className="flex justify-between">
+                <Button 
+                  onClick={handleBackToCategories}
+                  variant="outline"
+                >
+                  <ChevronLeft className="mr-1 h-4 w-4" />
+                  Back to Categories
+                </Button>
+                
+                <Button 
+                  onClick={handleNext} 
+                  className="flex items-center justify-center"
+                >
+                  {isLastQuestion ? "Continue" : "Next"}
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
@@ -255,13 +292,23 @@ const FeedbackDetail: React.FC = () => {
                   className="min-h-32"
                 />
               </div>
-              <Button 
-                onClick={handleSubmit} 
-                className="w-full flex items-center justify-center"
-              >
-                Submit Feedback
-                <Send className="ml-1 h-4 w-4" />
-              </Button>
+              <div className="flex justify-between">
+                <Button 
+                  onClick={handlePrevious}
+                  variant="outline"
+                >
+                  <ChevronLeft className="mr-1 h-4 w-4" />
+                  Back
+                </Button>
+                
+                <Button 
+                  onClick={handleSubmit} 
+                  className="flex items-center justify-center"
+                >
+                  Submit Feedback
+                  <Send className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </motion.div>

@@ -13,7 +13,10 @@ import AirlineSelection from "./pages/AirlineSelection";
 import LoungeSelection from "./pages/LoungeSelection";
 import StoreSelection from "./pages/StoreSelection";
 import AboutUs from "./pages/AboutUs";
+import Logout from "./pages/Logout";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,11 @@ const App = () => (
           <Route path="/lounge-selection" element={<LoungeSelection />} />
           <Route path="/store-selection" element={<StoreSelection />} />
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/logout" element={<Logout />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/feedback/:category" element={<AdminDashboard />} />
+          <Route path="/admin/feedback/:category/:entityId" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

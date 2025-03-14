@@ -1,22 +1,49 @@
 
-import React from 'react';
+import React,{ useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/Layout';
 import FlightInfoCard from '@/components/FlightInfoCard';
-
+import { FlightInfo } from '@/lib/Interfaces';
 const FlightDetails: React.FC = () => {
+  console.log("FlightDetails Componenet rendered") // debug 
+  const [flightData,setFlightData]=useState<FlightInfo | null>(null);
   const navigate = useNavigate();
-  
+  const storedData = localStorage.getItem("UserName");
+  console.log('storedData::',storedData)
+  const userData = storedData ? JSON.parse(storedData) : null;
   const handleContinue = () => {
     navigate('/feedback-selection');
   };
+  useEffect(()=>{
+    console.log("USEEFFECT EXECUTED") //debug
+    async function flightfn(){
+      try {
+        const data= await fetch(`https://aerodatabox.p.rapidapi.com/flights/number/${userData?.flightNumber}?withAircraftImage=false&withLocation=false`, {
+          method: 'GET',
+          headers: {
+            "X-RapidAPI-Key": "f8b1fc798bmshd3fd5dbb496e3a1p165482jsne9fcdb005ffe",
+            "X-RapidAPI-Host": "aerodatabox.p.rapidapi.com"
+          }
+        })
+         const response=await data.json()
+         console.log('response:',response)
+         setFlightData(response[0])   
+      } catch (error) {
+        console.error("The error while making an API call for flight data is: ",error) // debug
+      }
+     
+    }
+    flightfn();
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])
   
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto px-4">
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -36,8 +63,9 @@ const FlightDetails: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8"
         >
-          <FlightInfoCard />
+          <FlightInfoCard data={flightData} />
         </motion.div>
         
         <motion.div 

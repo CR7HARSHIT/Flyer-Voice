@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -8,13 +7,15 @@ import {
   ClipboardCheck, 
   HelpCircle, 
   Plane, 
-  Sofa, 
+  Building, 
   Store, 
-  Bath 
+  Bath,
+  ChevronLeft
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import Layout from '@/components/Layout';
 import FeedbackOption from '@/components/FeedbackOption';
+import { Button } from '@/components/ui/button';
 
 const FeedbackSelection: React.FC = () => {
   const navigate = useNavigate();
@@ -29,11 +30,15 @@ const FeedbackSelection: React.FC = () => {
     }
   };
   
+  const handleBack = () => {
+    navigate('/flight-details');
+  };
+  
   const feedbackOptions = [
     {
       icon: ShoppingBag,
       title: "Baggage",
-      description: "Feedback on baggage handling, collection, and services",
+      description: "Rate our baggage handling, collection, and services",
       onClick: () => handleFeedbackSelect("baggage")
     },
     {
@@ -61,7 +66,7 @@ const FeedbackSelection: React.FC = () => {
       onClick: () => handleFeedbackSelect("airline", true, "airline")
     },
     {
-      icon: Sofa,
+      icon: Building,
       title: "Lounge",
       description: "Rate your experience at the airport lounges",
       onClick: () => handleFeedbackSelect("lounge", true, "lounge")
@@ -103,8 +108,19 @@ const FeedbackSelection: React.FC = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 text-center"
+          className="mb-8 text-center relative"
         >
+          {/* Back button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+            className="absolute left-0 top-0"
+            aria-label="Go back to flight details"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+          
           <span className="inline-block bg-flyerblue-100 text-flyerblue-600 px-3 py-1 rounded-full text-sm font-medium mb-2">
             Step 3 of 3
           </span>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -88,6 +87,8 @@ const PassengerForm: React.FC = () => {
       pnr:string
    })
    {
+    try {
+      
       const response= await fetch("http://localhost:5000/api/user",
         {
           method:"POST",
@@ -101,7 +102,20 @@ const PassengerForm: React.FC = () => {
    const data=await response.json()
    console.log(`User Verification API response:${data}`)
    console.log(`User Verification API response of data:${data.success}`)
+   localStorage.setItem(
+    "UserName",
+    JSON.stringify({
+      type: "user",
+      flightNumber: data.data.flightNumber,
+      gate: data.data.gate,
+      userName: userDetails.name
+    })
+  );
     return data.success
+
+    } catch (error) {
+      console.error(`the Error is ${error}`)
+    }        
    } 
    ////////////////////////////////////////////////
 
