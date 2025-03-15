@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/Layout';
-
+import harshimg from '../../public/imgHarsh.jpg'
 
 interface DeveloperProps {
   name: string;
@@ -94,12 +94,12 @@ const AboutUs: React.FC = () => {
   const navigate=useNavigate()
   const developers = [
     {
-      name: "Alex Johnson",
-      role: "Lead Developer",
-      image: "https://randomuser.me/api/portraits/men/32.jpg",
-      github: "https://github.com/alexjohnson",
-      linkedin: "https://linkedin.com/in/alexjohnson",
-      email: "alex@flyervoice.com"
+      name: "Harshvardhan Singh Rao",
+      role: "Full Stack Developer",
+      image: `${harshimg}`,
+      github: "https://github.com/CR7HARSHIT",
+      linkedin: "https://www.linkedin.com/in/harshvardhanrao15022004/",
+      email: "harshvardhanrao555@gmail.com"
     },
     {
       name: "Sarah Chen",

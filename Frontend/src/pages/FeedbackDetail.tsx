@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight, Send, ChevronLeft } from 'lucide-react';
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
 import FEEDBACK_QUESTIONS from '@/lib/FeedbackQuestions';
+import FeedbackCategoryList from '@/components/admin/FeedbackCategoryList';
 
 // Dictionary to map store and lounge IDs to their names
 const ENTITY_NAMES: Record<string, string> = {
@@ -27,7 +28,7 @@ const ENTITY_NAMES: Record<string, string> = {
   'victorias-secret': 'Victoria\'s Secret',
   
   'indigo': 'IndiGo',
-  'air-india': 'Air India',
+  'air-india': 'AirIndia',
   'spicejet': 'SpiceJet',
   'goair': 'GoAir',
   'vistara': 'Vistara'
@@ -38,10 +39,10 @@ const FeedbackDetail: React.FC = () => {
   console.log(`category::${category},entityId::${entityId}`)
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const [feedbackData,setFeedbackData]=useState({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(1);
   const [ratings, setRatings] = useState<number[]>([]);
-  const [comments, setComments] = useState('');
+  const [comments, setComments] = useState("");
   const [showComments, setShowComments] = useState(false);
   
   // Use entityId as the category if it exists, otherwise use the category parameter
@@ -67,7 +68,10 @@ const FeedbackDetail: React.FC = () => {
       });
       return;
     }
-    
+      setFeedbackData({
+      ...feedbackData,
+      [questions[currentQuestionIndex]?.ref] :ratings[currentQuestionIndex]
+      })
     if (isLastQuestion) {
       setShowComments(true);
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -91,15 +95,54 @@ const FeedbackDetail: React.FC = () => {
     navigate('/feedback-selection');
   };
   
+   const dataSendFN=async ()=>{
+    try {
+      const response = await fetch(`http://localhost:5000/api/${feedbackCategory}/`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...feedbackData,
+          [questions[currentQuestionIndex]?.ref] : comments
+          }),
+      });
+    
+      
+      if (!response.ok) {
+        throw new Error("Something went wrong with submitting your feedback.");
+      }
+      toast({
+        title: "Feedback Submitted",
+        description: `Thank you for your feedback on ${getCategoryName(feedbackCategory)}`,
+      });
+      
+    } catch (err) {
+      console.error("Error submitting feedback:", err)
+      toast({
+        title: "Cant Submit Feedback",
+        description: "Due to Some issue cant submit feedback try after some time.",
+        variant: "destructive",
+      });
+      ;}
+  }
   const handleSubmit = () => {
     // In a real app, you would send this data to a backend
-    toast({
-      title: "Feedback Submitted",
-      description: `Thank you for your feedback on ${getCategoryName(feedbackCategory)}`,
-    });
+    if(comments.length < 2 ){
+      toast({
+        title: "Commnets Required",
+        description: `Please provide a valid comment before submitting feedback on ${getCategoryName(feedbackCategory)}`,
+        variant: "destructive",
+      });    
+    } else
+    {  
+      dataSendFN();
+    
     
     // Navigate back to feedback selection after submission
     navigate('/feedback-selection');
+  }
   };
   
   const formatRating = (value: number) => {
@@ -118,7 +161,13 @@ const FeedbackDetail: React.FC = () => {
     // Otherwise, format the category name from hyphenated to Title Case
     return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
+  useEffect(()=>{
+    if(entityId){
+      setFeedbackData({...feedbackData,name:ENTITY_NAMES[entityId]})
+    }
+  },[])
   console.log("questions::",questions)
+  
   return (
     <Layout>
       <div className="max-w-3xl mx-auto">
@@ -142,7 +191,7 @@ const FeedbackDetail: React.FC = () => {
           <span className="inline-block bg-flyerblue-100 text-flyerblue-600 px-3 py-1 rounded-full text-sm font-medium mb-2">
             Feedback
           </span>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{getCategoryName(feedbackCategory)} {entityId ? "("+ entityId+")" :""}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{getCategoryName(feedbackCategory)} {entityId ? "("+ ENTITY_NAMES[entityId]+")" :""}</h1>
           <p className="text-muted-foreground">
             {showComments ? "Add any additional comments" : `Question ${currentQuestionIndex } of ${Object.keys(questions)?.length }`}
           </p>
