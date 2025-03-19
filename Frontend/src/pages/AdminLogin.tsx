@@ -40,7 +40,55 @@ const AdminLogin: React.FC = () => {
       }));
     }
   };
-  
+    
+  const handleForm = async (event) => {
+    event.preventDefault();
+    // console.log(JSON.stringify(adminDetails));
+    try {
+        const response = await fetch("http://localhost:5000/api/admin/signin", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+        });
+        const data = await response.json();
+        console.log("data  success::",data)
+        if (!data.success) {
+           console.log("data not success::",data)
+            throw new Error(`${data?.error}`);
+        }
+        toast({
+          title: "Login Successful",
+          description: "Welcome to the admin dashboard.",
+        });
+        console.log("toast executed")
+        
+        localStorage.setItem(
+            "UserName",
+            JSON.stringify({ type: "admin", token: data.token, userName: data.data.name, tokenExpiry: data.tokenExpiry })
+        );
+        setLoginData({name:"",
+          email:"",
+          password:""
+        });
+        navigate('/admin-dashboard');
+        
+    } catch (err) {
+        console.error('Login error: ', err);
+        toast({
+          title: "Login error",
+          description: `${err}`,
+          variant: "destructive",
+        });
+        navigate('/admin-login')
+    }
+};
+
+
+
+
   const validateForm = () => {
     let valid = true;
     const newErrors = { ...errors };
@@ -72,18 +120,13 @@ const AdminLogin: React.FC = () => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       // For demo purposes, accept any valid input
-      localStorage.setItem('adminLoggedIn', 'true');
-      localStorage.setItem('adminName', loginData.name);
+      // localStorage.setItem('adminLoggedIn', 'true');
+      // localStorage.setItem('adminName', loginData.name);
+      handleForm(e)
       
-      toast({
-        title: "Login Successful",
-        description: "Welcome to the admin dashboard.",
-      });
-      
-      navigate('/admin-dashboard');
     }
   };
   

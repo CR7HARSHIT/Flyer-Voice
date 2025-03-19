@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Inbox, Star, MessageSquare, User, Calendar } from 'lucide-react';
@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import FeedbackRatingChart from './FeedbackRatingChart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FeedbackQuestion } from './FeedbackQuestionCategories';
-
+import { useParams } from 'react-router-dom';
+import {  formatDate} from  '../../lib/utils';
 interface Subcategory {
   id: string;
   name: string;
@@ -29,11 +30,55 @@ interface FeedbackDisplayProps {
 }
 
 const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategories }) => {
+  category=category.replace(/-/g, '')
+   console.log("category::",category)
+   console.log("Subcategories::",subcategories)
+   console.log("login data::",JSON.parse(localStorage.getItem("UserName")))
   const [activeTab, setActiveTab] = useState(subcategories[0]?.id || '');
-  
+ const [data,setData]=useState([]);
   // Generate mock data for each subcategory and question
   const mockFeedbackData: Record<string, Record<string, FeedbackItem[]>> = {};
-  
+   useEffect(()=>{
+    const loginData = JSON.parse(localStorage.getItem("UserName"));
+    const fetchData = async (category) => {
+      try {
+        // Define headers, including Authorization if needed
+        const headers = {
+          'Content-Type': 'application/json',  // Ensure the request body is in JSON format
+          'authorization': loginData?.token,  // Replace with the actual token
+        };
+    
+        // Make the fetch request with the method, headers, and authorization
+        const response = await fetch(`http://localhost:5000/api/${category}/`, {
+          method: 'GET',           // HTTP method
+          headers: headers,        // Headers object
+        });
+    
+        // Check if the response is successful (status code 200-299)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+    
+        // Parse the response JSON
+        const data = await response.json();
+    
+        // Log the data for debugging
+        console.log("Received data:", data);
+    
+        // Proceed with handling the data...
+        //  if(category===subcategories[0]?.id.replace(/-/g, '') ) 
+        //  else console.log("SUBCATEGORY EXISTS")
+        setData( data.data);
+        console.log("No error")
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        console.log("error")
+      }
+    };
+    
+   
+   fetchData(category)
+   },[category])
   subcategories.forEach(sub => {
     mockFeedbackData[sub.id] = {};
     
@@ -96,7 +141,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
       </p>
     </div>
   );
-
+  console.log("data::",data)
   return (
     <div className="space-y-8">
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -179,34 +224,31 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
                       {/* List all feedback items for this subcategory */}
                       <div className="space-y-6">
                         <h3 className="font-semibold text-lg">Individual Feedback</h3>
-                        {Object.entries(mockFeedbackData[sub.id]).flatMap(([questionId, feedbacks]) => 
-                          feedbacks.map(feedback => {
-                            const question = sub.questions.find(q => q.id === questionId);
+                           { data?.map((feedback,index) => {
+                            
                             return (
                               <div key={feedback.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
                                 <div className="flex justify-between items-start mb-2">
                                   <div className="flex items-center gap-2">
                                     <User className="h-4 w-4 text-muted-foreground" />
-                                    <span className="font-medium">{feedback.customerName}</span>
+                                    <span className="font-medium">{`Comment ${index+1}`}</span>
                                   </div>
-                                  <Badge variant="outline" className="bg-slate-50">
-                                    {question?.text || questionId}
-                                  </Badge>
+                                  
                                 </div>
-                                <div className="pl-6 mb-1">
+                                {/* <div className="pl-6 mb-1">
                                   {renderStars(feedback.rating)}
-                                </div>
+                                </div> */}
                                 <div className="pl-6 mb-3">
-                                  <p className="text-sm text-slate-700">"{feedback.comment}"</p>
+                                  <p className="text-sm text-slate-700">"{feedback?.feedbackMessage}"</p>
                                 </div>
                                 <div className="flex items-center text-xs text-muted-foreground">
                                   <Calendar className="h-3 w-3 mr-1" />
-                                  {feedback.date}
+                                  {formatDate(feedback.createdAt)}
                                 </div>
                               </div>
                             );
-                          })
-                        )}
+                          })}
+                      
                       </div>
                     </div>
                   ) : (

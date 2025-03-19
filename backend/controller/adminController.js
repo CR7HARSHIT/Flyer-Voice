@@ -16,9 +16,9 @@ const getAdmin = asyncHandler(async (req, res, next) => {
   const privateKey = process.env.PRIVATE_KEY
   const admin = await Admin.findOne({ email: req.body.email });
   if(!admin){
-    return next(new ErrorResponse("Invalid Email! Admin doesn't exixts", 404));
+    return next(new ErrorResponse("Invalid Email! Admin doesn't exists", 404));
   }
-  if (admin.password === req.body.password) {
+  if (admin.password === req.body.password && admin.name.replace(/\s+/g, '').toLowerCase() === req.body.name.replace(/\s+/g, '').toLowerCase()) {
     const token = jwt.sign({
       adminName : admin.name,
       adminEmail : admin.email

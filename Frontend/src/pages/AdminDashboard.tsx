@@ -1,21 +1,18 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AdminData } from '@/lib/Interfaces';
 import { 
   Plane, 
   ShoppingBag, 
   Building, 
-  Clock, 
-  MessageSquare, 
-  BarChart3, 
   ChevronLeft, 
   Coffee, 
   ClipboardCheck, 
   HelpCircle, 
   Bath,
-  Inbox,
-  Store 
+  Store,
+  BarChart3 
 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -27,23 +24,10 @@ import { getCustomQuestionsForCategory } from '@/components/admin/FeedbackQuesti
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { category } = useParams<{ category: string }>();
+  const { category, entityId } = useParams<{ category: string, entityId: string }>();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(category || null);
-  
-  // Check if admin is logged in
-  useEffect(() => {
-    const isAdminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-    if (!isAdminLoggedIn) {
-      toast({
-        title: "Access Denied",
-        description: "Please login as an admin to access this page.",
-        variant: "destructive"
-      });
-      navigate('/');
-    }
-  }, [navigate, toast]);
-  
-  // All categories
+  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(entityId || null);
+  const [showCategorySelection, setShowCategorySelection] = useState<boolean>(false);
   const feedbackCategories = [
     { 
       id: 'baggage', 
@@ -88,14 +72,7 @@ const AdminDashboard: React.FC = () => {
         { id: 'air-india', name: 'Air India', questions: getCustomQuestionsForCategory('airline') },
         { id: 'spicejet', name: 'SpiceJet', questions: getCustomQuestionsForCategory('airline') },
         { id: 'goair', name: 'GoAir', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'vistara', name: 'Vistara', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'airasia', name: 'AirAsia India', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'emirates', name: 'Emirates', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'lufthansa', name: 'Lufthansa', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'british-airways', name: 'British Airways', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'qatar-airways', name: 'Qatar Airways', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'singapore-airlines', name: 'Singapore Airlines', questions: getCustomQuestionsForCategory('airline') },
-        { id: 'other-airlines', name: 'Other Airlines', questions: getCustomQuestionsForCategory('airline') }
+        { id: 'vistara', name: 'Vistara', questions: getCustomQuestionsForCategory('airline') }
       ]
     },
     { 
@@ -106,15 +83,11 @@ const AdminDashboard: React.FC = () => {
       color: 'bg-indigo-50 border-indigo-200',
       subcategories: [
         { id: 'plaza-premium', name: 'Plaza Premium Lounge', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'priority-pass', name: 'Priority Pass Lounge', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'airline-lounges', name: 'Airline Lounges', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'credit-card-lounges', name: 'Credit Card Lounges', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'business-lounges', name: 'Business Lounges', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'first-class-lounges', name: 'First Class Lounges', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'sleep-pods', name: 'Sleep Pods', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'day-hotels', name: 'Day Hotels', questions: getCustomQuestionsForCategory('lounge') },
-        { id: 'other-lounges', name: 'Other Lounges', questions: getCustomQuestionsForCategory('lounge') }
-      ]
+        { id:   'loungekey', name: 'LoungeKey Lounge', questions: getCustomQuestionsForCategory('lounge') },
+        { id: 'air-india-maharaja', name: 'Air India Maharaja Lounge', questions: getCustomQuestionsForCategory('lounge') },
+        { id: 'tata-sky', name: 'Tata Sky Lounge', questions: getCustomQuestionsForCategory('lounge') },
+        { id: 'centurion', name: 'Centurion Lounge (American Express) Lounge', questions: getCustomQuestionsForCategory('lounge') }
+        ]
     },
     { 
       id: 'store', 
@@ -123,16 +96,11 @@ const AdminDashboard: React.FC = () => {
       icon: <Store className="h-8 w-8 text-emerald-500" />,
       color: 'bg-emerald-50 border-emerald-200',
       subcategories: [
-        { id: 'duty-free', name: 'Duty Free Shops', questions: getCustomQuestionsForCategory('store') },
-        { id: 'fashion', name: 'Fashion & Apparel', questions: getCustomQuestionsForCategory('store') },
-        { id: 'electronics', name: 'Electronics', questions: getCustomQuestionsForCategory('store') },
-        { id: 'books-magazines', name: 'Books & Magazines', questions: getCustomQuestionsForCategory('store') },
-        { id: 'gifts-souvenirs', name: 'Gifts & Souvenirs', questions: getCustomQuestionsForCategory('store') },
-        { id: 'convenience', name: 'Convenience Stores', questions: getCustomQuestionsForCategory('store') },
-        { id: 'beauty-wellness', name: 'Beauty & Wellness', questions: getCustomQuestionsForCategory('store') },
-        { id: 'jewelry-accessories', name: 'Jewelry & Accessories', questions: getCustomQuestionsForCategory('store') },
-        { id: 'liquor-tobacco', name: 'Liquor & Tobacco', questions: getCustomQuestionsForCategory('store') },
-        { id: 'other-stores', name: 'Other Stores', questions: getCustomQuestionsForCategory('store') }
+        { id: 'dfs', name: 'Duty Free Shops', questions: getCustomQuestionsForCategory('store') },
+        { id: 'whsmith', name: 'WHSmith', questions: getCustomQuestionsForCategory('store') },
+        { id: 'inmotion', name: 'InMotion', questions: getCustomQuestionsForCategory('store') },
+        { id: 'tumi', name: 'TUMI', questions: getCustomQuestionsForCategory('store') },
+        { id: 'victorias-secret', name: 'Victoria\'s Secret', questions: getCustomQuestionsForCategory('store') }
       ]
     },
     { 
@@ -156,27 +124,47 @@ const AdminDashboard: React.FC = () => {
   };
   
   const handleCategoryClick = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    navigate(`/admin/feedback/${categoryId}`);
+    const category = feedbackCategories.find(cat => cat.id === categoryId);
+    const hasSubcategories = ['airline', 'lounge', 'store'].includes(categoryId);
+    
+    if (hasSubcategories) {
+      setSelectedCategory(categoryId);
+      setShowCategorySelection(true);
+      navigate(`/admin-dashboard`);
+    } else {
+      setSelectedCategory(categoryId);
+      setShowCategorySelection(false);
+      navigate(`/admin/feedback/${categoryId}`);
+    }
+  };
+  
+  const handleSubcategoryClick = (entityId: string) => {
+    if (selectedCategory) {
+      setSelectedEntityId(entityId);
+      navigate(`/admin/feedback/${selectedCategory}/${entityId}`);
+    }
   };
   
   const handleBackToDashboard = () => {
     setSelectedCategory(null);
+    setSelectedEntityId(null);
+    setShowCategorySelection(false);
     navigate('/admin-dashboard');
   };
+  const AdminData: AdminData=JSON.parse(localStorage.getItem("UserName"))
   
-  const adminName = localStorage.getItem('adminName') || 'Admin';
   
   const selectedCategoryData = feedbackCategories.find(cat => cat.id === selectedCategory);
 
-  // For categories without subcategories, create a default subcategory with the same questions
-  const displaySubcategories = selectedCategoryData?.subcategories.length 
-    ? selectedCategoryData.subcategories 
-    : [{ 
-        id: selectedCategoryData?.id || '', 
-        name: selectedCategoryData?.title || '', 
-        questions: selectedCategoryData ? getCustomQuestionsForCategory(selectedCategoryData.id) : []
-      }];
+  const displaySubcategories = selectedCategoryData?.subcategories.length && selectedEntityId
+    ? selectedCategoryData.subcategories.filter(sub => sub.id === selectedEntityId)
+    : selectedCategoryData?.subcategories.length 
+      ? selectedCategoryData.subcategories 
+      : [{ 
+          id: selectedCategoryData?.id || '', 
+          name: selectedCategoryData?.title || '', 
+          questions: selectedCategoryData ? getCustomQuestionsForCategory(selectedCategoryData.id) : []
+        }];
   
   return (
     <Layout>
@@ -184,7 +172,7 @@ const AdminDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Welcome back, {adminName}</p>
+            <p className="text-muted-foreground mt-1">Welcome back, {AdminData?.userName}</p>
           </div>
           
           <div className="flex gap-4">
@@ -198,7 +186,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
         
-        {selectedCategory ? (
+        {category ? (
           <>
             <div className="mb-6">
               <Button 
@@ -210,14 +198,49 @@ const AdminDashboard: React.FC = () => {
                 Back to Dashboard
               </Button>
               
-              <h2 className="text-2xl font-semibold">{selectedCategoryData?.title}</h2>
+              <h2 className="text-2xl font-semibold">
+                {entityId 
+                  ? selectedCategoryData?.subcategories.find(sub => sub.id === entityId)?.name 
+                  : selectedCategoryData?.title}
+              </h2>
               <p className="text-muted-foreground">{selectedCategoryData?.description}</p>
             </div>
             
             <FeedbackDisplay 
-              category={selectedCategory} 
+              category={category} 
               subcategories={displaySubcategories} 
             />
+          </>
+        ) : showCategorySelection && selectedCategory ? (
+          <>
+            <div className="mb-6">
+              <Button 
+                variant="ghost" 
+                className="gap-2 mb-4" 
+                onClick={handleBackToDashboard}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              
+              <h2 className="text-2xl font-semibold">{selectedCategoryData?.title} Categories</h2>
+              <p className="text-muted-foreground">Select a specific {selectedCategory} to view feedback</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {selectedCategoryData?.subcategories.map((subcategory) => (
+                <div 
+                  key={subcategory.id}
+                  onClick={() => handleSubcategoryClick(subcategory.id)}
+                  className={`cursor-pointer rounded-lg border ${selectedCategoryData.color} p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-200`}
+                >
+                  <h3 className="text-lg font-semibold mb-2">{subcategory.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    View feedback for {subcategory.name}
+                  </p>
+                </div>
+              ))}
+            </div>
           </>
         ) : (
           <>

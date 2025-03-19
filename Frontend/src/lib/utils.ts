@@ -57,3 +57,22 @@ const departureUTC = "2025-03-13T15:30:00Z"; // Departure time (UTC)
 
 const flightDuration = calculateFlightDuration(arrivalUTC, departureUTC);
 console.log(flightDuration); // Example output: "13h 41m"
+
+// Example usage:
+const formattedDate = formatDate("2025-03-03T01:00:25.186Z");
+console.log(formattedDate); // Output: March 03, 2025
+
+
+
+
+
+export  function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric', // 'numeric' is a valid value
+    month: 'long', // 'long' is a valid value
+    day: 'numeric', // 'numeric' is a valid value
+  }
+
+  return date.toLocaleDateString('en-US', options);
+}

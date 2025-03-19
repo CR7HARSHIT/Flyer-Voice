@@ -3,6 +3,13 @@ export interface Location {
 	lon: number;
   }
   
+  export interface AdminData {
+	type: string; // "admin" in this case, but can be extended for other types
+  token: string; // JWT token
+  userName: string; // The user's name
+  tokenExpiry: number;
+	  
+  }
   export interface Airport {
 	icao: string;
 	iata: string;

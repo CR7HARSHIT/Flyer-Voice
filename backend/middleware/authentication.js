@@ -4,7 +4,8 @@ var jwt = require('jsonwebtoken');
 module.exports = (req,res,next) => {
     console.log("Executed")
     const privateKey = process.env.PRIVATE_KEY
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization;
+    console.log("req.headers.authorization::",req.headers.authorization)
     if(!token){
         next(new ErrorResponse("You are not an authorized user",401))
     }
