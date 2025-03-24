@@ -1,31 +1,35 @@
 
-import React from 'react';
+import React from'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FeedbackRatingChartProps {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   feedbackItems: {
-    rating: number;
+    // No rating property
   }[];
-  title?: string;
+  title?: string; // Optional title property
 }
 
 const FeedbackRatingChart: React.FC<FeedbackRatingChartProps> = ({ 
   feedbackItems,
   title = "Rating Distribution"
 }) => {
+  
+  console.log("Feedback rating feedback Items::",feedbackItems)
   // Calculate rating distribution with 0.5 step intervals
   const calculateRatingPercentages = () => {
     // Initialize counts for ratings 1-5 with 0.5 steps
     const ratingCounts: Record<string, number> = {};
-    for (let i = 1; i <= 5; i += 0.5) {
+    for (let i = 1; i <= 5; i += 1) {
       ratingCounts[i.toFixed(1)] = 0;
     }
+    console.log("rating count::",ratingCounts)
     
     // Count occurrences of each rating, rounding to nearest 0.5
-    feedbackItems.forEach(item => {
+    feedbackItems?.forEach(item => {
       if (item.rating >= 1 && item.rating <= 5) {
         const roundedRating = Math.round(item.rating * 2) / 2;
         const key = roundedRating.toFixed(1);
@@ -34,6 +38,7 @@ const FeedbackRatingChart: React.FC<FeedbackRatingChartProps> = ({
         }
       }
     });
+    console.log("rating count::",ratingCounts)
     
     // Convert to percentage data for pie chart
     const totalRatings = feedbackItems.length;
@@ -46,7 +51,7 @@ const FeedbackRatingChart: React.FC<FeedbackRatingChartProps> = ({
   };
 
   const ratingData = calculateRatingPercentages();
-  
+  console.log("calculateRatingPercentages::",ratingData)
   // Calculate average rating
   const totalRatings = feedbackItems.length;
   const sumRatings = feedbackItems.reduce((sum, item) => sum + item.rating, 0);
@@ -54,11 +59,17 @@ const FeedbackRatingChart: React.FC<FeedbackRatingChartProps> = ({
   
   // Colors for the pie chart slices based on rating
   const getRatingColor = (rating: number) => {
-    if (rating < 2) return '#EF4444'; // Red for low ratings
-    if (rating < 3) return '#F59E0B'; // Amber for medium-low ratings
-    if (rating < 4) return '#10B981'; // Green for medium-high ratings
-    return '#8B5CF6'; // Purple for high ratings
+    console.log(rating)
+    if (rating > 0 && rating <= 1) return '#E63946'; // Bright Red for very low ratings
+    if (rating > 1 && rating <= 2) return '#F4A261'; // Orange for low ratings
+    if (rating > 2 && rating <= 3) return '#FFD700'; // Yellow for medium ratings
+    if (rating > 3 && rating <= 4) return '#4CAF50'; // Green for good ratings
+    if (rating > 4 && rating <= 5) return '#1D3557'; // Blue for high ratings
+    return '#CCCCCC'; // Fallback Gray for invalid ratings
   };
+  
+  
+  
 
   // Custom tooltip for the pie chart
   const CustomTooltip = ({ active, payload }: any) => {

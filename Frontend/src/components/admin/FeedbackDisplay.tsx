@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Inbox, Star, MessageSquare, User, Calendar } from 'lucide-react';
+import { Inbox, Star, MessageSquare, User, Calendar, CloudCog } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import FeedbackRatingChart from './FeedbackRatingChart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -36,10 +35,27 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
    console.log("login data::",JSON.parse(localStorage.getItem("UserName")))
   const [activeTab, setActiveTab] = useState(subcategories[0]?.id || '');
  const [data,setData]=useState([]);
+ const [isSubCat,setIsSubCat]=useState(false)
+ const catFilter=["_id","name","createdAt","feedbackMessage","__v"]
+ const [feedbackCategoryData,setFeedbackCategoryData]=useState({})
+ const [pieChartData,setPieChartData]=useState([])
   // Generate mock data for each subcategory and question
   const mockFeedbackData: Record<string, Record<string, FeedbackItem[]>> = {};
+  const roundToNearestInt = (value) => {
+    if (value > 0 && value <= 0.5) return 0;
+    if (value > 0.5 && value <= 1.5) return 1;
+    if (value > 1.5 && value <= 2.5) return 2;
+    if (value > 2.5 && value <= 3.5) return 3;
+    if (value > 3.5 && value <= 4.5) return 4;
+    if (value > 4.5) return 5;
+    return -1; // Optional: Handle values less than or equal to 0
+  };
+  
+ 
+  
    useEffect(()=>{
     const loginData = JSON.parse(localStorage.getItem("UserName"));
+    const arr=['checkin','baggage','foodcourt','helpdesk','washroom']
     const fetchData = async (category) => {
       try {
         // Define headers, including Authorization if needed
@@ -68,8 +84,47 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
         // Proceed with handling the data...
         //  if(category===subcategories[0]?.id.replace(/-/g, '') ) 
         //  else console.log("SUBCATEGORY EXISTS")
-        setData( data.data);
+        let tempData;
+        if(arr.includes(category)){ setData(data?.data)
+          tempData=data?.data
+        }
+          else{
+                const subcat=subcategories[0].name;
+                console.log("subcat::",subcat)
+                console.log("Data after filter::",data?.data.filter((obj)=> obj?.name===subcat ))
+                setData(data?.data.filter((obj)=> obj?.name===subcat ))
+                tempData=data?.data.filter((obj)=> obj?.name===subcat )
+                setIsSubCat(true)
+          }       
+           console.log("tempData::",tempData);
+          const fcArr =  Object.keys(tempData[0]).filter(Element=>(!catFilter.includes(Element)))
+          let tempObj={}
+          fcArr.forEach(ele=>{
+            
+            tempObj={...tempObj,[ele]:[]}
+          })
+          tempData.forEach(Obj => {
+            
+            fcArr.forEach(key => {
+              tempObj[key].push(Obj[key])
+            })
+          });
+          console.log("tempObj:",tempObj)
+          console.log("fcArr",fcArr)
         console.log("No error")
+        setFeedbackCategoryData(tempObj)
+        let tempPiedata=[];
+        tempData.forEach(obj => {
+          let sum=0;
+          fcArr.forEach(key => {
+            sum+=obj[key]
+          })
+          sum=sum/(fcArr.length)
+          sum=roundToNearestInt(sum)
+          tempPiedata=[...tempPiedata,{...obj,rating:sum}]
+        });
+        setPieChartData(tempPiedata)
+        console.log("PieChart::",tempPiedata)
       } catch (error) {
         console.error('Error fetching data:', error);
         console.log("error")
@@ -117,18 +172,35 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
       .flat();
   };
 
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number ) => {
     return (
-      <div className="flex">
+      <div className="flex space-x-1">
         {[...Array(5)].map((_, i) => (
-          <Star 
-            key={i} 
-            className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-          />
+          <div key={i} className="relative h-4 w-4">
+            {/* Empty star as the base */}
+            <Star className="h-4 w-4 text-gray-300" />
+            
+            {/* Full star if i < rating */}
+            {i < Math.floor(rating) && (
+              <Star className="absolute inset-0 h-4 w-4 text-yellow-400 fill-yellow-400" />
+            )}
+  
+            {/* Partial star for fractional part */}
+            {i === Math.floor(rating) && rating % 1 !== 0 && (
+              <div
+                className="absolute inset-0 overflow-hidden"
+                style={{ width: `${(rating % 1) * 100}%` }} // Dynamically fill based on the decimal part
+              >
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+              </div>
+            )}
+          </div>
         ))}
       </div>
     );
   };
+    
+  
 
   const noFeedbackDisplay = (
     <div className="flex flex-col items-center justify-center text-center py-12">
@@ -154,7 +226,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
             >
               {sub.name}
               <Badge className="ml-2 bg-flyerblue-500">
-                {getTotalFeedbackCount(sub.id)}
+                {data?.length}
               </Badge>
             </TabsTrigger>
           ))}
@@ -165,14 +237,14 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
             <div className="grid gap-6">
               {getAllFeedbackForSubcategory(sub.id).length > 0 && (
                 <FeedbackRatingChart 
-                  feedbackItems={getAllFeedbackForSubcategory(sub.id)} 
+                  feedbackItems={pieChartData} 
                   title={`${sub.name} Overall Rating Distribution`}
                 />
               )}
               
               <Card>
                 <CardHeader>
-                  <CardTitle>{sub.name} Feedback</CardTitle>
+                  <CardTitle>{sub.name} {isSubCat?"Feedback": ""} </CardTitle>
                   <CardDescription>
                     Review and manage feedback for {sub.name} across different aspects
                   </CardDescription>
@@ -186,35 +258,28 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
                           <TableRow>
                             <TableHead>Category</TableHead>
                             <TableHead>Average Rating</TableHead>
-                            <TableHead>Responses</TableHead>
+                   
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {sub.questions.map(question => {
-                            const feedbacksForQuestion = mockFeedbackData[sub.id][question.id] || [];
-                            const avgRating = feedbacksForQuestion.length 
-                              ? (feedbacksForQuestion.reduce((sum, fb) => sum + fb.rating, 0) / feedbacksForQuestion.length).toFixed(1)
-                              : '-';
-                            
+                          {Object.keys(feedbackCategoryData).map( (ele,i)=> {
+                            const arr=feedbackCategoryData[ele];
+                            const sum = arr.reduce((acc, num) => acc + num, 0);
+                           const avgRating = (sum / arr.length).toFixed(1);
                             return (
-                              <TableRow key={question.id}>
-                                <TableCell className="font-medium">{question.text}</TableCell>
+                              <TableRow key={ele}>
+                                <TableCell className="font-medium">{ele[0].toUpperCase() + ele.slice(1)}</TableCell>
                                 <TableCell>
-                                  {feedbacksForQuestion.length ? (
+                                  { (
                                     <div className="flex items-center gap-2">
                                       {avgRating}
                                       <div className="flex">
-                                        {[...Array(5)].map((_, i) => (
-                                          <Star 
-                                            key={i} 
-                                            className={`h-3 w-3 ${i < parseFloat(avgRating as string) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                                          />
-                                        ))}
+                                        {renderStars(Number(avgRating))}
                                       </div>
                                     </div>
-                                  ) : '-'}
+                                  ) }
                                 </TableCell>
-                                <TableCell>{feedbacksForQuestion.length}</TableCell>
+                                
                               </TableRow>
                             );
                           })}
