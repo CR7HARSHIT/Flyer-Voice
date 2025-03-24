@@ -45,7 +45,7 @@ const AdminLogin: React.FC = () => {
     event.preventDefault();
     // console.log(JSON.stringify(adminDetails));
     try {
-        const response = await fetch("http://localhost:5000/api/admin/signin", {
+        const response = await fetch("https://flyer-voice.onrender.com/api/admin/signin", {
             method: "POST",
             headers: {
                 Accept: "application/json",

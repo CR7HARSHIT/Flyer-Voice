@@ -97,7 +97,7 @@ const FeedbackDetail: React.FC = () => {
   
    const dataSendFN=async ()=>{
     try {
-      const response = await fetch(`http://localhost:5000/api/${feedbackCategory}/`, {
+      const response = await fetch(`https://flyer-voice.onrender.com/api/${feedbackCategory}/`, {
         method: "POST",
         headers: {
           Accept: "application/json",

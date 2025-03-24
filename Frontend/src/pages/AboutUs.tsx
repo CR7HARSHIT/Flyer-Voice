@@ -15,7 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import Layout from '@/components/Layout';
 import harshimg from '../../public/imgHarsh.jpg'
-
+import deepakimg from "../../public/deepak.jpg"
+import gorangimg from "../../public/gorang.jpg" 
 interface DeveloperProps {
   name: string;
   role: string;
@@ -102,20 +103,20 @@ const AboutUs: React.FC = () => {
       email: "harshvardhanrao555@gmail.com"
     },
     {
-      name: "Sarah Chen",
-      role: "UI/UX Designer",
-      image: "https://randomuser.me/api/portraits/women/44.jpg",
-      github: "https://github.com/sarahchen",
-      linkedin: "https://linkedin.com/in/sarahchen",
-      email: "sarah@flyervoice.com"
+      name: "Deepak Sharma",
+      role: "Backend Developer",
+      image: `${deepakimg}`,
+      github: "https://github.com/Deepu42042",
+      linkedin: "https://www.linkedin.com/in/deepak-sharma-5b9817245/",
+      email: "getdeepak2003@gmail.com"
     },
     {
-      name: "Miguel Rodriguez",
+      name: "Gorang Sharma",
       role: "Frontend Developer",
-      image: "https://randomuser.me/api/portraits/men/67.jpg",
-      github: "https://github.com/miguelrodriguez",
-      linkedin: "https://linkedin.com/in/miguelrodriguez",
-      email: "miguel@flyervoice.com"
+      image: `${gorangimg}`,
+      github: "https://github.com/gorangxdev",
+      linkedin: "https://www.linkedin.com/in/gorangsharma/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      email: "11gorangsharma@gmail.com"
     }
   ];
 

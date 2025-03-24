@@ -65,7 +65,7 @@ const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ category, subcategori
         };
     
         // Make the fetch request with the method, headers, and authorization
-        const response = await fetch(`http://localhost:5000/api/${category}/`, {
+        const response = await fetch(`https://flyer-voice.onrender.com/api/${category}/`, {
           method: 'GET',           // HTTP method
           headers: headers,        // Headers object
         });
