@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNavbar = true }) => {
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 }
   };
-
+// hello
   return (
     <div className="min-h-screen bg-gradient-to-b from-flyerblue-50 to-white">
       {showNavbar && <Navbar />}
