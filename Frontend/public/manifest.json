@@ -10,17 +10,17 @@
     "scope": "/",
     "icons": [
       {
-        "src": "/public/xxx.png",
+        "src": "/xxx.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "/public/xxx.png",
+        "src": "/xxx.png",
         "type": "image/png",
         "sizes": "512x512"
       },
       {
-        "src": "/public/xxx.png",
+        "src": "/xxx.png",
         "type": "image/png",
         "sizes": "512x512",
         "purpose": "any maskable"
